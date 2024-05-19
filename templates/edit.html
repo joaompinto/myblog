@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Edit Entry{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="/static/editor.css">
+<script src="/static/editor.js" defer></script>
+{% endblock %}
+
+{% block content %}
+    <div class="grid grid-cols-1 gap-4">
+        <div class="bg-white p-4 shadow-md">
+            <div id="toolbar-container">
+                <span class="ql-formats">
+                    <select class="ql-header">
+                        <option value="1"></option>
+                        <option value="2"></option>
+                        <option selected></option>
+                    </select>
+                    <button class="ql-bold"></button>
+                    <button class="ql-italic"></button>
+                    <button class="ql-underline"></button>
+                    <button class="ql-image"></button>
+                    <button id="scale-image-button" disabled>Scale</button>
+                </span>
+            </div>
+            <div id="editor-container" style="height: 300px;"></div>
+            <!-- Hidden div to store the editor content passed from Jinja -->
+            <div id="content-id" style="display: none;">{{ contend_id }}</div>
+            <!-- <div id="editor-content" style="display: none;">{{ editor_content|safe }}</div> -->
+            <div class="mt-2"> <!-- Added small space before the save button -->
+                <button id="save-button" class="px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-700">Save</button>
+                <!-- Add Delete button here -->
+                <button id="delete-button" class="px-4 py-2 ml-2 bg-red-500 text-white font-bold rounded hover:bg-red-700">Delete</button>
+            </div>
+            <div id="error-message"></div>
+            <div id="last-save-info"></div>
+            <div class="flex items-center justify-center mt-4"> <!-- Center the button -->
+                <button class="px-3 py-1 bg-green-500 text-white font-semibold rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 gap-4">
+        <div class="bg-white p-4 shadow-md">
+            <div id="content-render" style="height: 300px;">
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

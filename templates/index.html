@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Blog Entries{% endblock %}
+{% block content %}
+    <div class="grid grid-cols-1 gap-4">
+        <!-- New Entry Button -->
+        <div class="bg-white p-4 shadow-md flex justify-end">
+            <a href="/edit" class="add-new-entry-btn">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Create New Entry
+                </button>
+            </a>
+        </div>
+
+        <!-- Loop through editor contents -->
+        {% for entry in editor_contents %}
+        <div class="bg-white p-4 shadow-md">
+            <div class="entry-content" style="height: auto;">
+                {{ entry.content|quill_delta_to_html|safe }}
+            </div>
+            <div class="flex justify-end mt-2">
+                <a href="/edit/{{ entry.id }}">
+                    <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        Edit
+                    </button>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block scripts %}
+    <!-- Removed QuillJS initialization script -->
+{% endblock %}

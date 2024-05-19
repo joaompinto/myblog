@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Title{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="/static/main.css" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    {% block css %}{% endblock %}
+</head>
+<body class="bg-gray-100">
+    <!-- Fixed Heading Section -->
+    <div class="bg-blue-500 text-white py-2 px-4 fixed top-0 left-0 w-full z-10 flex justify-center items-center">
+        <h1 class="text-xl font-bold"><a href="/" class="text-white hover:text-gray-200">My Blog</a></h1>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-4 mt-16">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
