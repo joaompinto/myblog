@@ -1,15 +1,13 @@
 {% extends 'base.html' %}
 {% block title %}Blog Entries{% endblock %}
 {% block content %}
+    <a href="/edit" class="add-new-entry-btn">
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Create New Entry
+        </button>
+    </a>
+    <div class="mb-2"></div>
     <div class="grid grid-cols-1 gap-4">
-        <!-- New Entry Button -->
-        <div class="bg-white p-4 shadow-md flex justify-end">
-            <a href="/edit" class="add-new-entry-btn">
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Create New Entry
-                </button>
-            </a>
-        </div>
 
         <!-- Loop through editor contents -->
         {% for entry in editor_contents %}
