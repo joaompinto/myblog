@@ -1,62 +1,17 @@
-
 var quill = new Quill('#editor-container', {
     theme: 'snow',
     modules: {
         toolbar: '#toolbar-container',
-        imageResize: {
-            displaySize: true // Set to true to display image size in pixels
-        }
+        imageClick: true // Enable the custom module
     }
 });
 
-quill.getModule('toolbar').addHandler('image', () => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
-    input.click();
 
-    input.onchange = () => {
-        const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const range = quill.getSelection();
-                quill.insertEmbed(range.index, 'image', e.target.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-});
 
-quill.on('selection-change', range => {
-    const scaleButton = document.getElementById('scale-image-button');
-    if (range && range.length === 1) {
-        const [leaf] = quill.getLeaf(range.index);
-        if (leaf && leaf.domNode.tagName === 'IMG') {
-            scaleButton.disabled = false;
-        } else {
-            scaleButton.disabled = true;
-        }
-    } else {
-        scaleButton.disabled = true;
-    }
-});
 
 quill.on('text-change', () => {
     // Enable the save button when the editor content changes
     document.getElementById('save-button').disabled = false;
-});
-
-document.getElementById('scale-image-button').addEventListener('click', () => {
-    const range = quill.getSelection();
-    if (range && range.length === 1) {
-        const [leaf] = quill.getLeaf(range.index);
-        if (leaf && leaf.domNode.tagName === 'IMG') {
-            const img = leaf.domNode;
-            img.style.width = '50%';
-            img.style.height = 'auto';
-        }
-    }
 });
 
 // Load the editor content from the hidden div

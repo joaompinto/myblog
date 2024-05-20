@@ -32,7 +32,6 @@ SQLModel.metadata.create_all(engine)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
-
 async def get_index(request: Request, id: Optional[int] = None):
     # Open a database session
     with Session(engine) as session:
@@ -104,3 +103,11 @@ async def load_editor_content(id: int):
             return {"id": id, "content": json.loads(editor_content.content)}
         else:
             raise HTTPException(status_code=404, detail="Content not found")
+
+
+@app.get("/test", response_class=HTMLResponse)
+async def test(request: Request):
+    # Render test.html
+    return templates.TemplateResponse("test.html", {"request": request})
+
+

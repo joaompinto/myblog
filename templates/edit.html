@@ -1,8 +1,15 @@
 {% extends 'base.html' %}
 {% block title %}Edit Entry{% endblock %}
 {% block css %}
-<link rel="stylesheet" href="/static/editor.css">
 <script src="/static/editor.js" defer></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+<script src="/static/quill-image-scale.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -19,7 +26,6 @@
                     <button class="ql-italic"></button>
                     <button class="ql-underline"></button>
                     <button class="ql-image"></button>
-                    <button id="scale-image-button" disabled>IMG1</button>
                 </span>
             </div>
             <div id="editor-container" style="height: 300px;"></div>
