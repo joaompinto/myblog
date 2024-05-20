@@ -11,27 +11,40 @@ def quill_delta_to_html(delta):
     line_html = ""
     delta = json.loads(delta)
     print("DELTA=", delta)
+    save_attributes = {}
 
     for op in delta.get('ops', []):
-        if 'insert' in op:
-            insert_op = op['insert']
-            if isinstance(insert_op, str):
-                if insert_op.endswith("\n"):
-                    print("FINISHED LINE")
-                    attributes = op.get('attributes', {})
-                    line_html += insert_op
-                    line_html = apply_attributes(line_html, attributes)
-                    html += line_html
-                    line_html = ""
-                else:
-                    attributes = op.get('attributes', {})
-                    line_html += apply_attributes(insert_op, attributes)
-                    print("LINE_HTML=", line_html)
-            elif isinstance(insert_op, dict) and 'image' in insert_op:
-                html += f'<img src="{insert_op["image"]}" />'
+        insert_op = op['insert']
+        if isinstance(insert_op, str):
+            if insert_op.endswith("\n"):
+                print("FINISHED LINE")
+                line_html += insert_op
+                attributes = op.get('attributes', {})
+                line_html = apply_attributes(line_html, attributes)
+                html += line_html
+                line_html = ""
+            else:
+                attributes = op.get('attributes', {})
+                line_html += apply_attributes(insert_op, attributes)
+                print("LINE_HTML=", line_html)
+        elif isinstance(insert_op, dict) and 'image' in insert_op:
+            attributes = op.get('attributes', {})
+            print("IMG ATTRIBUTES=", attributes)
+            html += apply_image_attributes(insert_op["image"], attributes)
+            #html += f'<img src="{insert_op["image"]}" />'
+
+
 
     print("HTML=", html)
     return html
+
+def apply_image_attributes(image, attributes):
+    attributes_str = ""
+    if 'width' in attributes:
+        attributes_str += f' width="{attributes["width"]}"'
+    if 'height' in attributes:
+        attributes_str += f' height="{attributes["height"]}"'
+    return f'<img src="{image}"{attributes_str} />'
 
 def apply_attributes(text, attributes):
     """

@@ -1,7 +1,11 @@
+
 var quill = new Quill('#editor-container', {
     theme: 'snow',
     modules: {
-        toolbar: '#toolbar-container'
+        toolbar: '#toolbar-container',
+        imageResize: {
+            displaySize: true // Set to true to display image size in pixels
+        }
     }
 });
 
