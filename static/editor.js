@@ -92,7 +92,11 @@ quill.getModule('toolbar').addHandler('image', () => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const range = quill.getSelection();
-                quill.insertEmbed(range.index, 'customImage', {'src': e.target.result});
+                quill.insertText(range.index, '\n');
+                quill.insertEmbed(range.index+1, 'customImage', {'src': e.target.result});
+                // Insert a new line after the image
+                // Move the cursor to the end of the new line
+                quill.setSelection(range.index + 2);
             };
             reader.readAsDataURL(file);
         }

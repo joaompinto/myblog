@@ -27,10 +27,10 @@ def quill_delta_to_html(delta):
                 attributes = op.get('attributes', {})
                 line_html += apply_attributes(insert_op, attributes)
                 print("LINE_HTML=", line_html)
-        elif isinstance(insert_op, dict) and 'image' in insert_op:
+        elif isinstance(insert_op, dict) and 'customImage' in insert_op:
             attributes = op.get('attributes', {})
             print("IMG ATTRIBUTES=", attributes)
-            html += apply_image_attributes(insert_op["image"], attributes)
+            html += apply_image_attributes(insert_op["customImage"], attributes)
             #html += f'<img src="{insert_op["image"]}" />'
 
 
@@ -44,6 +44,12 @@ def apply_image_attributes(image, attributes):
         attributes_str += f' width="{attributes["width"]}"'
     if 'height' in attributes:
         attributes_str += f' height="{attributes["height"]}"'
+    align = image.get("align")
+    if align == "center":
+        attributes_str += 'style="display: block; margin: 0 auto;"'
+    elif align == "left":
+        attributes_str += 'style="display: block; margin: 0 0 0 0;"'
+    image = image['src']
     return f'<img src="{image}"{attributes_str} />'
 
 def apply_attributes(text, attributes):

@@ -1,5 +1,3 @@
-
-
 class ImageClickModule {
     constructor(quill, options) {
         this.quill = quill;
@@ -33,6 +31,7 @@ class ImageClickModule {
         <button data-size="medium">Medium</button>
         <button data-size="large">Large</button>
         <button data-align="center">Center</button>
+        <button data-align="left">Left</button>
         `;
         toolbar.style.position = 'absolute';
         toolbar.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
@@ -56,6 +55,8 @@ class ImageClickModule {
                 this.resizeImage(size);
             } else if (align === 'center') {
                 this.centerImage();
+            } else if (align === 'left') {
+                this.leftAlignImage();
             }
         });
         });
@@ -77,6 +78,18 @@ class ImageClickModule {
 
         const blot = Quill.find(this.image);
         blot.format('align', 'center');
+    }
+
+    leftAlignImage() {
+        if (!this.image) return;
+
+        // Left-align the image
+        this.image.style.display = 'block';
+        this.image.style.margin = '0 0 0 0';
+
+
+        const blot = Quill.find(this.image);
+        blot.format('align', 'left');
     }
 
     resizeImage(size) {
