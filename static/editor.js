@@ -1,3 +1,76 @@
+// Import ImageBlot from Quill
+const ImageBlot = Quill.import('formats/image');
+
+class CustomImageBlot extends ImageBlot {
+  static create(value) {
+    console.log("Creating from", value)
+    let node = super.create(value);
+    node.setAttribute('src', value.src);
+    node.setAttribute('alt', 'image');
+    if(value.align) {
+        node.setAttribute('align', value.align);        // Center the image
+        node.style.display = 'block';
+        node.style.marginLeft = 'auto';
+        node.style.marginRight = 'auto';
+    }
+    return node;
+  }
+
+  static formats(node) {
+    let formats = super.formats(node);
+    if (node.hasAttribute('data-width')) {
+      formats.width = node.getAttribute('data-width');
+    }
+    if (node.hasAttribute('data-align')) {
+      formats.align = node.getAttribute('data-align');
+    }
+    return formats;
+  }
+
+  format(name, value) {
+    console.log("Formatting single", name, value);
+    if (name === 'width') {
+      if (value) {
+        this.domNode.setAttribute('data-width', value);
+        this.domNode.style.width = value;
+      } else {
+        this.domNode.removeAttribute('data-width');
+        this.domNode.style.width = '';
+      }
+    } else if (name === 'align') {
+      if (value) {
+        this.domNode.setAttribute('align', value);
+        this.domNode.style.display = 'block';
+        this.domNode.style.marginLeft = value === 'center' ? 'auto' : '';
+        this.domNode.style.marginRight = value === 'center' ? 'auto' : '';
+      } else {
+        this.domNode.removeAttribute('align');
+        this.domNode.style.display = '';
+        this.domNode.style.marginLeft = '';
+        this.domNode.style.marginRight = '';
+      }
+    } else {
+      super.format(name, value);
+    }
+  }
+
+  static value(node) {
+    console.log("Getting the value of", node)
+    return {
+        'src' : node.src,
+        'width': node.width,
+        'align': node.align
+    }
+  }
+}
+
+// Set the blot name and tag name
+CustomImageBlot.blotName = 'customImage';
+CustomImageBlot.tagName = 'img';
+
+// Register the custom blot with Quill
+Quill.register(CustomImageBlot);
+
 var quill = new Quill('#editor-container', {
     theme: 'snow',
     modules: {
@@ -6,7 +79,25 @@ var quill = new Quill('#editor-container', {
     }
 });
 
+quill.getModule('toolbar').addHandler('image', () => {
+    console.log("my own handler");
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
 
+    input.onchange = () => {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const range = quill.getSelection();
+                quill.insertEmbed(range.index, 'customImage', {'src': e.target.result});
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+});
 
 
 quill.on('text-change', () => {
@@ -46,7 +137,6 @@ document.getElementById('save-button').addEventListener('click', () => {
     var currentUrl = window.location.href;
     var idMatch = currentUrl.match(/\/(\d+)$/); // Updated regex to match '/X' at the end of URL
     var postUrl = idMatch ? `/save/${idMatch[1]}` : '/save'; // Use the captured number for the save URL
-    console.log(postUrl);
 
     // Define the request parameters
     xhr.open('POST', postUrl, true);
@@ -57,12 +147,13 @@ document.getElementById('save-button').addEventListener('click', () => {
     errorMessage.innerText = '';
     errorMessage.style.display = 'none';
 
+    console.log(content);
+
     // Define the callback function to handle the response
     xhr.onload = function () {
         if (xhr.status >= 200 && xhr.status < 300) {
             // Enable the save button after successful save
             document.getElementById('save-button').disabled = false;
-            console.log(xhr.responseText);
 
             // Show last save info
             var lastSaveInfo = document.getElementById('last-save-info');

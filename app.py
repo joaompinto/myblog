@@ -99,6 +99,7 @@ async def load_editor_content(id: int):
     with Session(engine) as session:
         statement = select(EditorContent).where(EditorContent.id == id)
         editor_content = session.exec(statement).first()
+        print("CONTENT", editor_content.content)
         if editor_content:
             return {"id": id, "content": json.loads(editor_content.content)}
         else:

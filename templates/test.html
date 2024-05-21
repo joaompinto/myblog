@@ -139,12 +139,4 @@ const quill = new Quill('#editor', {
   }
 });
 
-// Get a reference to the debug button
-const debugButton = document.getElementById('debugButton');
-
-// Add a click event listener to the debug button
-debugButton.addEventListener('click', () => {
-  // Log the delta contents
-  console.log(quill.getContents());
-});
 </script>

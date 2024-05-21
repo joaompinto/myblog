@@ -1,3 +1,5 @@
+
+
 class ImageClickModule {
     constructor(quill, options) {
         this.quill = quill;
@@ -10,13 +12,14 @@ class ImageClickModule {
     }
 
     handleClick(event) {
-        if (event.target.tagName === 'IMG') {
-        this.image = event.target;
 
         // Remove the previous toolbar if it exists
         if (this.toolbar) {
             this.toolbar.remove();
+            this.toolbar = null;
         }
+        if (event.target.tagName === 'IMG') {
+        this.image = event.target;
 
         // Create a new toolbar element
         this.createToolbar(event.pageY, event.pageX);
@@ -29,6 +32,7 @@ class ImageClickModule {
         <button data-size="small">Small</button>
         <button data-size="medium">Medium</button>
         <button data-size="large">Large</button>
+        <button data-align="center">Center</button>
         `;
         toolbar.style.position = 'absolute';
         toolbar.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
@@ -47,7 +51,12 @@ class ImageClickModule {
                 this.toolbar = null; // Reset the reference
             }
             const size = button.getAttribute('data-size');
-            this.resizeImage(size);
+            const align = button.getAttribute('data-align');
+            if (size) {
+                this.resizeImage(size);
+            } else if (align === 'center') {
+                this.centerImage();
+            }
         });
         });
 
@@ -56,14 +65,18 @@ class ImageClickModule {
 
         // Store the reference to the current toolbar
         this.toolbar = toolbar;
+    }
 
-        // Remove the toolbar after a certain time or on click
-        setTimeout(() => {
-        if (this.toolbar) {
-            this.toolbar.remove();
-            this.toolbar = null; // Reset the reference
-        }
-        }, 5000);
+    centerImage() {
+        if (!this.image) return;
+
+        // Center the image
+        this.image.style.display = 'block';
+        this.image.style.margin = '0 auto';
+
+
+        const blot = Quill.find(this.image);
+        blot.format('align', 'center');
     }
 
     resizeImage(size) {
@@ -89,16 +102,10 @@ class ImageClickModule {
         this.image.style.height = 'auto';
 
         // Update the image attributes in the Quill delta
-        const range = this.quill.getSelection(true);
-        if (range) {
-        const [leaf, offset] = this.quill.getLeaf(range.index);
-        if (leaf && leaf.domNode === this.image) {
-            const blot = Quill.find(this.image);
-            blot.format('width', width);
-        }
-        }
+        console.log("Formatted image width");
+        const blot = Quill.find(this.image);
+        blot.format('width', width);
     }
 }
 
- // Register the custom module with Quill
 Quill.register('modules/imageClick', ImageClickModule);
