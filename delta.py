@@ -82,6 +82,10 @@ def apply_attributes(text, attributes):
         if level == 2:
             html = f'<h1 class="text-2xl">{html}</h1>'
 
+    if 'align' in attributes:
+        align = attributes['align']
+        html = f'<div style="text-align: {align};">{html}</div>'
+
     return html
 
 # Example usage
