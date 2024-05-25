@@ -113,11 +113,12 @@ quill.on('text-change', () => {
 document.addEventListener('DOMContentLoaded', function() {
 
     // Get the content from the hidden div
-    var contentId = document.getElementById('content-id').textContent;
+    var contentId = document.getElementById('content_id').textContent;
+    var authorId = document.getElementById('author_id').textContent;
 
     // Do an AJAX request to get the editor content from the database
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', `/load/${contentId}`, true);
+    xhr.open('GET', `/load/${authorId}/${contentId}`, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function () {
         if (xhr.status >= 200 && xhr.status < 300) {

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Edit Entry{% endblock %}
-{% block css %}
+{% block head_extra %}
 <script src="/static/editor.js" defer></script>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
 
@@ -13,6 +13,7 @@
 {% endblock %}
 
 {% block content %}
+    Created by: {{ name }}
     <div class="grid grid-cols-1 gap-4">
         <div class="bg-white p-4 shadow-md">
             <div id="toolbar-container">
@@ -31,7 +32,8 @@
             </div>
             <div id="editor-container" style="height: 300px;"></div>
             <!-- Hidden div to store the editor content passed from Jinja -->
-            <div id="content-id" style="display: none;">{{ contend_id }}</div>
+            <div id="content_id" style="display: none;">{{ contend_id }}</div>
+            <div id="author_id" style="display: none;">{{ author_id }}</div>
             <!-- <div id="editor-content" style="display: none;">{{ editor_content|safe }}</div> -->
             <div class="mt-2"> <!-- Added small space before the save button -->
                 <button id="save-button" class="px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-700">Save</button>

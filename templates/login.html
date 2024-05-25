@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block head_extra %}
+<link href="/static/login.css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+    <div class="grid grid-cols-1 gap-4">
+        <div class="bg-white p-4 shadow-md">
+            <h2>Login Page</h2>
+            <form method="post" action="/login">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <br>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <br>
+                <input type="submit" value="Login">
+            </form>
+            {% if invalid %}
+                <p style="color: red;">Invalid username or password</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
