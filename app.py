@@ -29,8 +29,7 @@ app.get("/logout", response_class=HTMLResponse)(logout)
 
 
 @app.get("/", response_class=HTMLResponse)
-async def get_index(request: Request, id: Optional[int] = None, session: Session = Depends(get_session), is_authenticated: str = Depends(is_authenticated)):
-
+async def get_index(request: Request, id: Optional[int] = None, session: Session = Depends(get_session), is_authenticated: bool = Depends(is_authenticated)):
     statement = select(EditorContent).order_by(EditorContent.content_id.desc())
     editor_contents = session.exec(statement).all()
     return templates.TemplateResponse("index.html", {"request": request, "editor_contents": editor_contents, "is_authenticated": is_authenticated})

@@ -17,6 +17,7 @@
             <div class="entry-content" style="height: auto;">
                 {{ entry.content|quill_delta_to_html|safe }}
             </div>
+            {% if is_authenticated %}
             <div class="flex justify-end mt-2">
                 <a href="/edit/{{ entry.author_id }}/{{ entry.content_id }}">
                     <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
@@ -24,6 +25,7 @@
                     </button>
                 </a>
             </div>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
