@@ -2,7 +2,7 @@
 {% block title %}Blog Entries{% endblock %}
 {% block content %}
     {% if is_authenticated %}
-    <a href="/edit" class="add-new-entry-btn">
+    <a href="/edit/{{ author_id }}" class="add-new-entry-btn">
         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Create New Entry
         </button>
@@ -17,15 +17,14 @@
             <div class="entry-content" style="height: auto;">
                 {{ entry.content|quill_delta_to_html|safe }}
             </div>
-            {% if is_authenticated %}
+
             <div class="flex justify-end mt-2">
-                <a href="/edit/{{ entry.author_id }}/{{ entry.content_id }}">
-                    <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                        Edit
+                <a href="/view/{{ entry.author_id }}/{{ entry.content_id }}">
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        View
                     </button>
                 </a>
             </div>
-            {% endif %}
         </div>
         {% endfor %}
     </div>

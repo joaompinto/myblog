@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Edit Entry{% endblock %}
+
+{% block content %}
+<div class="mb-2"></div>
+<div class="grid grid-cols-1 gap-4">
+    <div class="bg-white p-4 shadow-md">
+        <div class="entry-content" style="height: auto;">
+            {{ editor_content.content|quill_delta_to_html|safe }}
+        </div>
+        <div class="flex justify-end mt-2">
+            <a href="/edit/{{ editor_content.author_id }}/{{ editor_content.content_id }}">
+                <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Edit
+                </button>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -22,16 +22,16 @@ async def get_current_username(request: Request):
     else:
         raise HTTPException(status_code=401, detail="Could not find access_token cookie")
 
-async def is_authenticated(request: Request):
+async def get_current_user_data(request: Request):
     access_token = request.cookies.get("access_token")
     if access_token:
         try:
-            _ = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
-            return True
+            data = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+            return data
         except jwt.PyJWTError:
             raise HTTPException(status_code=401, detail="Could not validate credentials")
     else:
-        return False
+        return None
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None):

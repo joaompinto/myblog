@@ -10,7 +10,7 @@ from delta import quill_delta_to_html
 from db import get_session, EditorContent, get_user_by_email
 from auth import login_get, login_post, get_current_username, logout
 from fastapi import Depends
-from auth import get_current_username, is_authenticated
+from auth import get_current_username, get_current_user_data
 
 app = FastAPI()
 
@@ -29,24 +29,39 @@ app.get("/logout", response_class=HTMLResponse)(logout)
 
 
 @app.get("/", response_class=HTMLResponse)
-async def get_index(request: Request, id: Optional[int] = None, session: Session = Depends(get_session), is_authenticated: bool = Depends(is_authenticated)):
+async def get_index(request: Request, id: Optional[int] = None, session: Session = Depends(get_session), get_current_user_data: dict = Depends(get_current_user_data)):
+    is_authenticated = get_current_user_data is not None
+    author_id = get_current_user_data.get("author_id") if is_authenticated else None
     statement = select(EditorContent).order_by(EditorContent.content_id.desc())
     editor_contents = session.exec(statement).all()
-    return templates.TemplateResponse("index.html", {"request": request, "editor_contents": editor_contents, "is_authenticated": is_authenticated})
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "editor_contents": editor_contents,
+            "is_authenticated": is_authenticated,
+            "author_id": author_id
+        }
+)
 
 @app.get("/edit/{author_id}/{content_id}", response_class=HTMLResponse)
-@app.get("/edit/{author_id}/", response_class=HTMLResponse)
+@app.get("/edit/{author_id}", response_class=HTMLResponse)
 @app.get("/edit", response_class=HTMLResponse)
 async def get_editor(
     request: Request,
     author_id: Optional[int] = None,
     content_id: Optional[int] = None,
     session: Session = Depends(get_session),
-    username: str = Depends(get_current_username)
+    get_current_user_data: dict = Depends(get_current_user_data)
 ):
-    editor_content = None
-    name, user_id = get_user_by_email(username)
-    if author_id is not None:
+    is_authenticated = get_current_user_data is not None
+    if is_authenticated:
+        username = get_current_user_data['sub']
+        editor_content = None
+        name, user_id = get_user_by_email(username)
+    else:
+        name =" John Doe"
+    if content_id is not None:
         statement = select(EditorContent).where(EditorContent.author_id == author_id,
                                                 EditorContent.content_id == content_id)
         editor_content = session.exec(statement).first()
@@ -55,15 +70,25 @@ async def get_editor(
         else:
             raise HTTPException(status_code=404, detail="Content not found")
     return templates.TemplateResponse(
-        "edit.html", {"request": request,
-        "editor_content": editor_content,
-        "contend_id": content_id,
-        "author_id": author_id,
-        "name": name})
+        "edit.html", {
+            "request": request,
+            "editor_content": editor_content,
+            "contend_id": content_id,
+            "author_id": author_id,
+            "name": name,
+            "is_authenticated": is_authenticated
+            }
+        )
 
-@app.post("/save/{id}", response_class=JSONResponse)
-@app.post("/save", response_class=JSONResponse)
-async def save_editor_content(request: Request, id: Optional[int] = None, session: Session = Depends(get_session), username: str = Depends(get_current_username)):
+@app.post("/save/{author_id}/{content_id}", response_class=JSONResponse)
+@app.post("/save/{author_id}", response_class=JSONResponse)
+async def save_editor_content(
+    request: Request,
+    author_id: Optional[int] = None,
+    content_id: Optional[int] = None,
+    session: Session = Depends(get_session),
+    username: str = Depends(get_current_username)
+):
     try:
         name, user_id = get_user_by_email(username)
         content = await request.json()
@@ -73,27 +98,56 @@ async def save_editor_content(request: Request, id: Optional[int] = None, sessio
             raise HTTPException(status_code=422, detail="Missing 'content' field in request body")
 
         editor_content = json.dumps(editor_content)
-        if id is not None:
-            statement = select(EditorContent).where(EditorContent.content_id == id)
+        if content_id is not None:
+            statement = select(EditorContent).where(
+                EditorContent.author_id == user_id,
+                EditorContent.content_id == content_id)
             existing_content = session.exec(statement).first()
+            print("existing_content", existing_content)
             if existing_content is None:
                 raise HTTPException(status_code=404, detail="Content not found")
             existing_content.content = editor_content
         else:
             editor_content_obj = EditorContent(content=editor_content, author_id=user_id)
             session.add(editor_content_obj)
-
+        # commit either the new record or the updated record
         session.commit()
 
-        content_id = id if id is not None else editor_content_obj.content_id
+        content_id = content_id if content_id is not None else editor_content_obj.content_id
 
-        return {"message": "Content saved successfully", "id": content_id, "content": quill_delta_to_html(editor_content)}
+        return {
+            "message": "Content saved successfully",
+            "content_id": content_id,
+            "author_id": user_id,
+            "content": quill_delta_to_html(editor_content)
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/create", response_class=HTMLResponse)
 async def create_entry(request: Request):
     return templates.TemplateResponse("edit.html", {"request": request})
+
+@app.get("/view/{author_id}/{content_id}", response_class=HTMLResponse)
+async def view_content(
+    request: Request,
+    author_id: int,
+    content_id: int,
+    session: Session = Depends(get_session),
+    get_current_user_data: bool = Depends(get_current_user_data)
+):
+    is_authenticated = get_current_user_data is not None
+    statement = select(EditorContent).where(EditorContent.author_id == author_id, 
+                                            EditorContent.content_id == content_id)
+    editor_content = session.exec(statement).first()
+    if editor_content:
+        return templates.TemplateResponse(
+            "view.html", 
+            {"request": request, "editor_content": editor_content, "is_authenticated": is_authenticated}
+        )
+    else:
+        raise HTTPException(status_code=404, detail="Content not found")
+
 
 @app.get("/load/{author_id}/{content_id}", response_class=JSONResponse)
 async def load_editor_content(

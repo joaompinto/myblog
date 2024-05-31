@@ -112,9 +112,9 @@ quill.on('text-change', () => {
 // Load the editor content from the hidden div
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Get the content from the hidden div
-    var contentId = document.getElementById('content_id').textContent;
-    var authorId = document.getElementById('author_id').textContent;
+    // Get the content from content_id if the element exists
+    var currentUrl = window.location.href;
+    var { authorId, contentId } = extractIdsFromUrl(currentUrl);
 
     // Do an AJAX request to get the editor content from the database
     var xhr = new XMLHttpRequest();
@@ -128,6 +128,19 @@ document.addEventListener('DOMContentLoaded', function() {
     xhr.send();
 });
 
+function extractIdsFromUrl(url) {
+  var regex = /\/(\d+)(?:\/(\d+))?$/;
+  var match = url.match(regex);
+  if (match) {
+      return {
+          authorId: match[1],
+          contentId: match[2] || null
+      };
+  } else {
+      return null;
+  }
+}
+
 document.getElementById('save-button').addEventListener('click', () => {
     // Disable the save button upon click
     document.getElementById('save-button').disabled = true;
@@ -138,10 +151,10 @@ document.getElementById('save-button').addEventListener('click', () => {
     // Create a new XMLHttpRequest object
     var xhr = new XMLHttpRequest();
 
-    // Check if the current URL ends with '/X' where X is a number
     var currentUrl = window.location.href;
-    var idMatch = currentUrl.match(/\/(\d+)$/); // Updated regex to match '/X' at the end of URL
-    var postUrl = idMatch ? `/save/${idMatch[1]}` : '/save'; // Use the captured number for the save URL
+    var { authorId, contentId } = extractIdsFromUrl(currentUrl);
+
+    var postUrl = contentId ? `/save/${authorId}/${contentId}` : `/save/${authorId}`; // Use the captured number for the save URL
 
     // Define the request parameters
     xhr.open('POST', postUrl, true);
@@ -167,12 +180,11 @@ document.getElementById('save-button').addEventListener('click', () => {
 
             // Change the current URL to end with 'edit/id'
             var response = JSON.parse(xhr.responseText);
-            if (response.id) {
-                var newUrl = window.location.origin + window.location.pathname.replace(/\/(\d+)$/, '') + '/' + response.id;
-                window.history.pushState({ path: newUrl }, '', newUrl);
-            }
-            // Change the content id in the hidden div
-            document.getElementById('content-id').textContent = response.id;
+
+            var newUrl = `/edit/${response.author_id}/${response.content_id}`;
+            window.history.pushState({ path: newUrl }, '', newUrl);
+            console.log(response);
+
             document.getElementById('content-render').innerHTML = response.content;
 
         } else {
