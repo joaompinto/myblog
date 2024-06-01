@@ -7,3 +7,4 @@ sqlmodel
 delta
 bcrypt
 requests
+pyjwt

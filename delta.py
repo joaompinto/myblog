@@ -19,6 +19,8 @@ def quill_delta_to_html(delta):
             if insert_op.endswith("\n"):
                 line_html += insert_op
                 attributes = op.get('attributes', {})
+                # Replace newlines with HTML line breaks
+                line_html = line_html.replace("\n", "<br>")
                 line_html = apply_attributes(line_html, attributes)
                 html += line_html
                 line_html = ""
