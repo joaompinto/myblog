@@ -17,7 +17,6 @@ def quill_delta_to_html(delta):
         insert_op = op['insert']
         if isinstance(insert_op, str):
             if insert_op.endswith("\n"):
-                print("FINISHED LINE")
                 line_html += insert_op
                 attributes = op.get('attributes', {})
                 line_html = apply_attributes(line_html, attributes)
@@ -26,13 +25,9 @@ def quill_delta_to_html(delta):
             else:
                 attributes = op.get('attributes', {})
                 line_html += apply_attributes(insert_op, attributes)
-                print("LINE_HTML=", line_html)
         elif isinstance(insert_op, dict) and 'customImage' in insert_op:
             attributes = op.get('attributes', {})
-            print("IMG ATTRIBUTES=", attributes)
             html += apply_image_attributes(insert_op["customImage"], attributes)
-            #html += f'<img src="{insert_op["image"]}" />'
-
 
 
     print("HTML=", html)
@@ -62,9 +57,9 @@ def apply_attributes(text, attributes):
     """
     if not attributes:
         return text
-    
+
     html = text
-    
+
     if attributes.get('bold'):
         html = f'<strong>{html}</strong>'
     if attributes.get('italic'):
@@ -88,6 +83,19 @@ def apply_attributes(text, attributes):
 
     return html
 
+
+def delta_title(delta):
+    """
+    Extract the title from the first line of the delta
+
+    :param delta: List of delta operations (parsed JSON)
+    :return: Title string
+    """
+    delta = json.loads(delta)
+    for op in delta.get('ops', []):
+        if 'insert' in op:
+            return op['insert']
+
 # Example usage
 if __name__ == "__main__":
     delta_text = '''
@@ -107,5 +115,4 @@ if __name__ == "__main__":
     '''
     delta = json.loads(delta_text)
     html_output = quill_delta_to_html(delta)
-    print(html_output)
 

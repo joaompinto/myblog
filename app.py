@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, Form, Depends
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -6,11 +6,10 @@ from typing import Optional
 from pydantic import BaseModel
 from sqlmodel import select, Session
 import json
-from delta import quill_delta_to_html
+from delta import quill_delta_to_html, delta_title
 from db import get_session, EditorContent, get_user_by_email
 from auth import login_get, login_post, get_current_username, logout
-from fastapi import Depends
-from auth import get_current_username, get_current_user_data
+from auth import get_current_user_data
 
 app = FastAPI()
 
@@ -114,12 +113,15 @@ async def save_editor_content(
         session.commit()
 
         content_id = content_id if content_id is not None else editor_content_obj.content_id
+        content = quill_delta_to_html(editor_content)
+        title = delta_title(editor_content)
 
         return {
             "message": "Content saved successfully",
             "content_id": content_id,
             "author_id": user_id,
-            "content": quill_delta_to_html(editor_content)
+            "content": quill_delta_to_html(editor_content),
+            "title": title
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -140,10 +142,15 @@ async def view_content(
     statement = select(EditorContent).where(EditorContent.author_id == author_id, 
                                             EditorContent.content_id == content_id)
     editor_content = session.exec(statement).first()
+    title = delta_title(editor_content.content)
     if editor_content:
         return templates.TemplateResponse(
-            "view.html", 
-            {"request": request, "editor_content": editor_content, "is_authenticated": is_authenticated}
+            "view.html", {
+                "request": request,
+                "title": title,
+                "editor_content": editor_content,
+                "is_authenticated": is_authenticated
+            }
         )
     else:
         raise HTTPException(status_code=404, detail="Content not found")

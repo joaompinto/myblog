@@ -122,7 +122,9 @@ document.addEventListener('DOMContentLoaded', function() {
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function () {
         if (xhr.status >= 200 && xhr.status < 300) {
-            quill.setContents(JSON.parse(xhr.responseText).content);
+            // change the browser window title
+            var response = JSON.parse(xhr.responseText);
+            quill.setContents(response.content);
         }
     };
     xhr.send();
@@ -186,6 +188,7 @@ document.getElementById('save-button').addEventListener('click', () => {
             console.log(response);
 
             document.getElementById('content-render').innerHTML = response.content;
+            document.title = response.title;
 
         } else {
             // Enable the save button after encountering an error

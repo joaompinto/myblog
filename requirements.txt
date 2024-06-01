@@ -1,0 +1,9 @@
+fastapi
+fastapi-cli
+uvicorn
+jinja2
+pydantic
+sqlmodel
+delta
+bcrypt
+requests
